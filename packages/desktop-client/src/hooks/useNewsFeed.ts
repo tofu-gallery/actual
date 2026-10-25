@@ -9,8 +9,9 @@ import { useGlobalPref } from './useGlobalPref';
 const EMPTY_ENTRIES: NewsEntry[] = [];
 
 export function useNewsFeed() {
-  // The setting (on by default) lets the user opt out of the feed and of the
-  // request it makes to GitHub.
+  // The setting lets the user opt out of the feed and of the request it makes
+  // to GitHub. Tofu: off by default in a copy from Tofu's gallery (see
+  // loadGlobalPrefs in loot-core).
   const [showNewsFeed] = useGlobalPref('showNewsFeed');
   const isEnabled = Boolean(showNewsFeed);
   const [lastSeenNewsDate, setLastSeenNewsDate] =

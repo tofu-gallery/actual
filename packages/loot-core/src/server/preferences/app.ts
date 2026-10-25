@@ -207,12 +207,15 @@ async function loadGlobalPrefs(): Promise<GlobalPrefs> {
     customCssOverride: customCssOverride || undefined,
     serverSelfSignedCert: serverSelfSignedCert || undefined,
     syncServerConfig: syncServerConfig || undefined,
+    // Tofu: a copy made from Tofu's gallery is pinned and never follows
+    // upstream, so it does not ask GitHub for new releases (the update check)
+    // or for upstream's news feed unless its owner turns them on in Settings.
     notifyWhenUpdateIsAvailable:
       notifyWhenUpdateIsAvailable === undefined
-        ? true
-        : notifyWhenUpdateIsAvailable, // default to true
+        ? false
+        : notifyWhenUpdateIsAvailable, // Tofu: default to false
     lastSeenNewsDate: lastSeenNewsDate || undefined,
-    showNewsFeed: showNewsFeed === undefined ? true : showNewsFeed, // default to true
+    showNewsFeed: showNewsFeed === undefined ? false : showNewsFeed, // Tofu: default to false
   };
 }
 
