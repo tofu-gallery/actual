@@ -18,7 +18,7 @@ This repository is Tofu's copy of **actualbudget/actual** (licence: MIT), listed
 
 ## How `site/web` is built
 
-From the repository root, with the source as of `b8996c020b7d2a3e1a395f12afd876529c7bcbcb` (this branch's second Tofu commit; the first only removes images and changes no file the build reads), Node 22.22.3 and the Yarn that `.yarnrc.yml` names (`.yarn/releases/yarn-4.17.1.cjs`):
+From the root of a git clone of this repository, with the source as of `b8996c020b7d2a3e1a395f12afd876529c7bcbcb` (this branch's second Tofu commit; the first only removes images and changes no file the build reads), Node 22.22.3 and the Yarn that `.yarnrc.yml` names (`.yarn/releases/yarn-4.17.1.cjs`):
 
 ```sh
 git clone https://github.com/actualbudget/translations packages/desktop-client/locale
@@ -26,6 +26,7 @@ git -C packages/desktop-client/locale checkout 1d3585a06ae3ad8b2833667234317ae14
 node packages/desktop-client/bin/remove-untranslated-languages
 HUSKY=0 ELECTRON_SKIP_BINARY_DOWNLOAD=1 node .yarn/releases/yarn-4.17.1.cjs install --immutable
 node .yarn/releases/yarn-4.17.1.cjs build:browser --skip-translations
+rm -rf site/web
 rsync -a --exclude='*.map' --exclude='.vite/' --exclude='_headers' --exclude='_redirects' packages/desktop-client/build/ site/web/
 cp LICENSE.txt site/web/LICENSE.txt
 ```
@@ -34,6 +35,8 @@ cp LICENSE.txt site/web/LICENSE.txt
 - Upstream's `.nvmrc` names Node 24.18.1; its `engines` field accepts 22.18.0 or later, and the build here used 22.22.3.
 - The copy leaves out the build's 47 source maps (36 MB), `.vite/manifest.json` (not used at run time) and Netlify's `_headers` and `_redirects`, which `site/server.mjs` replaces. None of them is in the service worker's precache list. `LICENSE.txt` is added so the licence is served at `/LICENSE.txt`.
 - The result is 160 files, 17 MB. A change to the client's source needs this build run again and `site/web/` replaced in the same commit.
+- `rm -rf site/web` empties the folder before the build is copied into it, so nothing of an earlier build stays behind. Many of the built files are named after their content (`static/js/*.<hash>.chunk.js`, `kcab/kcab.worker.<hash>.js`, `workbox-<hash>.js`), so a build of changed source has new file names, and copying it over the old folder would keep the old files next to the new ones. The build itself starts from empty folders every time: Vite empties `packages/desktop-client/build/` and loot-core's `lib-dist/browser/`, and the web build deletes `public/kcab/` before it copies the worker there.
+- A git clone keeps the execute bits upstream's build scripts need (`yarn build:browser` runs `./bin/package-browser`). `git clone` of the translations needs `packages/desktop-client/locale` not to exist, so in a clone that kept it from an earlier build, delete it first.
 
 ## What Tofu changes
 
